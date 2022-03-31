@@ -2,7 +2,6 @@ import model
 import controller
 import time
 
-
 class Menu():
 
     def __init__(self):
@@ -11,6 +10,7 @@ class Menu():
         print("[1] Lancer un tournoi")
         print("[2] Ajouter un nouveau joueur")
         print("[3] Afficher la liste de...")
+        print("[4] Quitter")
 
 
 class MenuListes():
@@ -22,6 +22,12 @@ class MenuListes():
         print("[5] Tous les matchs d'un tournoi")
 
 
+class MenuTournoi():
+    def __init__(self):
+        print("[1] Créer un tournoi")
+        print("[2] Lancer un tournoi")
+
+
 def run():
     while(True):
 
@@ -30,8 +36,33 @@ def run():
         reponse = input("")
         print()
         match reponse:
+            case "0":
+                print()
+                
             case "1":
-                controller.createTournoi()
+                MenuTournoi()
+                reponse_tournoi = input()
+
+                match reponse_tournoi:
+                    
+                    case "1":
+                        tournoi = controller.createTournoi()
+                        print("Voulez vous lancer le tournoi maintenant ?\n")
+                        print("[1] Oui")
+                        print("[2] Non")
+                        reponse_start_tournoi = input()
+
+                        match reponse_start_tournoi:
+
+                            case "1":
+                                tournoi.run()
+
+                            case "2":
+                                pass
+
+
+                    case "2":
+                        pass
 
             case "2":
                 controller.addPlayer()
@@ -59,10 +90,10 @@ def run():
                         pass
 
             case "4":
-                for tournoi in model.Acteurs.tournois:
-                    tournoi.runTournoi()
-                    print(tournoi.nom)
-                    print(tournoi.liste_tours)
-                    print()
+                quit()
+
+            case "menu":
+                pass
+#           Enregistre où on en est et reviens au menu principal
 
         time.sleep(1)

@@ -1,3 +1,4 @@
+from re import M
 import model
 
 
@@ -13,13 +14,40 @@ def createTournoi():
     nom = input("Saisir le nom du tournoi : ")
     lieu = input("Saisir le lieu du tournoi : ")
     date = input("Saisir la date du tournoi : ")
-    tours = input("Saisir le nombre de tours (4 par défaut) : ")
-    joueurs = model.Acteurs.joueurs
+    tours = int(input("Saisir le nombre de tours (4 par défaut) : "))
     print("Saisir le temps pour chaque round :")
     print("[1] Bullet    [2] Blitz    [3] Rapide")
     timer = input()
     description = input("Saisir la description (facultatif) : ")
-    model.Acteurs.tournois.append(model.Tournoi(nom, lieu, date, joueurs, timer, description, tours))
+
+    players = []
+    while len(players) < 8:
+        print("Saisir les noms des joueurs à ajouter :")
+        reponse = input()
+        found = False
+        for joueur in model.Acteurs.joueurs:
+            print(joueur.nom)
+            if reponse.lower() == joueur.nom.lower():
+                players.append(joueur)
+                found = True
+                break
+        if found == False:
+            print("Ce joueur n'existe pas, voulez-vous l'ajouter ?")
+            print("[1] Oui")
+            print("[2] Non")
+            reponse_ajout = input()
+            match reponse_ajout:
+
+                case "1":
+                    addPlayer()
+                
+                case "2":
+                    pass
+
+
+    tournoi = model.Tournoi(nom, lieu, date, players, timer, description, tours)
+    model.Acteurs.tournois.append(tournoi)
+    return tournoi
 
 
 def showPlayers(ordre):
@@ -29,18 +57,48 @@ def showPlayers(ordre):
         case "1":
             joueurs = sorted(model.Acteurs.joueurs, key=lambda Player: Player.nom)
             for joueur in joueurs:
-                print(joueur.__dict__)
+                print(joueur.__str__())
 
         case "2":
             joueurs = sorted(model.Acteurs.joueurs, key=lambda Player: int(Player.classement))
             for joueur in joueurs:
-                print("    ".join(joueur.__dict__.values()))
+                print(joueur.__str__())
 
 
 def showTournoi():
     for tournoi in model.Acteurs.tournois:
-        print(tournoi.__dict__)
+        print(tournoi.__str__())
 
 
 def showTours():
     pass
+
+
+def endTurn(match):
+    print("\nQui a gagné le match ?\n")
+    print("[1] " + match.joueur1[0].__str__())
+    print("[2] " + match.joueur2[0].__str__())
+    print("[3] Match nul")
+    reponse = input()
+
+    match reponse:
+        
+        case "1":
+            match.joueur1[1] += 1
+
+        case "2":
+            match.joueur2[1] += 1
+
+        case "3":
+            match.joueur1[1] += 0.5
+            match.joueur2[1] += 0.5
+
+
+def setScore(matchs, tableau_scores):
+    for match in matchs:
+        for joueur in tableau_scores:
+            pass
+            if match.result[0][0] == joueur[0]:
+                joueur[1] = match.result[0][1]
+            if match.result[1][0] == joueur[0]:
+                joueur[1] = match.result[0][1]
