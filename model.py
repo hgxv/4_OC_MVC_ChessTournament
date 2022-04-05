@@ -92,7 +92,7 @@ class Tour():
 #       Assignation de l'heure de début        
         cls.heure_debut = time.strftime("%H:%M", time.localtime())
         nombre_tours = int(len(cls.players) / 2)
-        index = 0
+        copy_players = cls.players.copy()
 
 #       Créer les matchs
         for match in range(nombre_tours):
@@ -102,18 +102,20 @@ class Tour():
                 cls.already_played[cls.players[match]].append(cls.players[match + nombre_tours])
                 cls.already_played[cls.players[match + nombre_tours]].append(cls.players[match])
             else:
-                
 #######         Vérifier si deux joueurs se sont déjà affronté avant de créer le match
+                joueur1 = copy_players.pop(0)
+                for index, player in enumerate(copy_players):
+                    if player not in cls.already_played[joueur1]:
+                        joueur2 = copy_players.pop(index)
+                        break
 
-                cls.liste_match.append(Match(cls.players[index], cls.players[index + 1]))
+                cls.liste_match.append(Match(joueur1, joueur2))
 #               On ajoute les joueurs affrontés dans le dictionnaire du joueur
-                cls.already_played[cls.players[index]].append(cls.players[index + 1])
-                cls.already_played[cls.players[index + 1]].append(cls.players[index])
-                index += 2
+                cls.already_played[joueur1].append(joueur2)
+                cls.already_played[joueur2].append(joueur1)
                 
 #       Impression des matchs
         controller.showMatchs(cls.liste_match)
-        print(cls.already_played)  
 
 
     def end(cls, tableau_scores):
