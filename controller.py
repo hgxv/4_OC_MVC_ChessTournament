@@ -26,7 +26,6 @@ def createTournoi():
         reponse = input()
         found = False
         for joueur in model.Acteurs.joueurs:
-            print(joueur.nom)
             if reponse.lower() == joueur.nom.lower():
                 players.append(joueur)
                 found = True
@@ -74,6 +73,12 @@ def showTours():
     pass
 
 
+def showMatchs(liste_match):
+    for match in liste_match:
+        print(match.__str__())
+    print("\n")
+
+
 def endTurn(match):
     print("\nQui a gagné le match ?\n")
     print("[1] " + match.joueur1[0].__str__())
@@ -82,7 +87,7 @@ def endTurn(match):
     reponse = input()
 
     match reponse:
-        
+
         case "1":
             match.joueur1[1] += 1
 
@@ -94,11 +99,11 @@ def endTurn(match):
             match.joueur2[1] += 0.5
 
 
-def setScore(matchs, tableau_scores):
+def setScore(matchs, score_table):
     for match in matchs:
-        for joueur in tableau_scores:
+        for joueur in score_table:
             pass
             if match.result[0][0] == joueur[0]:
-                joueur[1] = match.result[0][1]
+                joueur[1] += match.result[0][1]
             if match.result[1][0] == joueur[0]:
-                joueur[1] = match.result[0][1]
+                joueur[1] += match.result[1][1]
