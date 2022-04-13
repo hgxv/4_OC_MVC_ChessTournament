@@ -1,4 +1,5 @@
 from Model import model
+from Controller import chargement
 import time
 
 def addPlayer():
@@ -6,7 +7,9 @@ def addPlayer():
     prenom = input("Saisir le prénom du joueur : ")
     date = input("Saisir la date de naissance du joueur : ")
     classement = input("Saisir le classement du joueur : ")
-    model.Acteurs.joueurs.append(model.Player(nom, prenom, date, classement))
+    joueur = model.Player(nom, prenom, date, classement)
+    model.Acteurs.joueurs.append(joueur)
+    chargement.players_table.insert(chargement.serialize_player(joueur))
 
 
 def createTournoi():
@@ -39,9 +42,8 @@ def createTournoi():
                 case "1":
                     addPlayer()
                 
-                case "2":
+                case _:
                     pass
-
 
     tournoi = model.Tournoi(nom, lieu, date, players, timer, description, tours)
     model.Acteurs.tournois.append(tournoi)

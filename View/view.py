@@ -74,14 +74,15 @@ def run():
                         print("Afficher par ordre...")
                         print("[1] Alphabétique")
                         print("[2] Classement")
-                        rapports.showPlayers(input())
+                        rapports.showPlayers("all", input())
                         
 
                     case "2":
-                        pass
+#                        tournoi =
+                        rapports.showPlayers(tournoi, input())
 
                     case "3":
-                        rapports.showTournoi()
+                        rapports.showTournois()
 
                     case "4":
                         rapports.showTours()
