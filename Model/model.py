@@ -1,10 +1,10 @@
 import time
-
+from collections import defaultdict
 
 class Acteurs():
 
     joueurs = []
-    tournois = []  
+    tournois = []
 
 
 class Tournoi():
@@ -26,30 +26,39 @@ class Tournoi():
 
             case "3":
                 self.timer = "Rapid"
-
+            
+            case "Bullet" | "Blitz" | "Rapid":
+                self.timer = timer
 
     def __str__(self):
         return self.nom + " " + self.date + " " + self.lieu
 
 
 class Player():
+    id_list = defaultdict(list)
 
-    def __init__(self, nom, prenom, date, classement):
+    def __init__(self, nom, prenom, date, classement, id):
         self.nom = nom
         self.prenom = prenom
         self.date = date
         self.classement = classement
+        self.id = id
+        Player.id_list[self.id].append(self)
     
+    @classmethod
+    def find_by_id(cls, id):
+        return Player.id_list[id]
+
     def __str__(self):
         return self.nom + " " + self.prenom
 
 
 class Tour():
 
-    def __init__(self, name, players, already_played):
-        self.name = name
+    def __init__(self, nom, players, already_played):
+        self.nom = nom
         self.players = players
-        self.liste_match = []
+        self.liste_matchs = []
         self.already_played = already_played
 
 
@@ -61,4 +70,6 @@ class Match():
         self.result = (self.joueur1, self.joueur2)
 
     def __str__(self):
-        return self.joueur1[0].__str__() + " vs " + self.joueur2[0].__str__()
+        joueur1 = Player.find_by_id(self.joueur1[0])[0]
+        joueur2 = Player.find_by_id(self.joueur2[0])[0]
+        return  joueur1.__str__() + " vs " + joueur2.__str__()

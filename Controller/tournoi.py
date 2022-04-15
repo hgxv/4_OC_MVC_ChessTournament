@@ -1,13 +1,16 @@
 from Model import model
 from Controller import chargement
+from View import view
 import time
+import uuid
 
 def addPlayer():
     nom = input("Saisir le nom de famille du joueur : ")
     prenom = input("Saisir le prénom du joueur : ")
     date = input("Saisir la date de naissance du joueur : ")
     classement = input("Saisir le classement du joueur : ")
-    joueur = model.Player(nom, prenom, date, classement)
+    id = str(uuid.uuid4())
+    joueur = model.Player(nom, prenom, date, classement, id)
     model.Acteurs.joueurs.append(joueur)
     chargement.players_table.insert(chargement.serialize_player(joueur))
 
@@ -46,6 +49,7 @@ def createTournoi():
                     pass
 
     tournoi = model.Tournoi(nom, lieu, date, players, timer, description, tours)
+    tournoi.tour_actuel = 1
     model.Acteurs.tournois.append(tournoi)
     return tournoi
 
@@ -53,39 +57,42 @@ def createTournoi():
 def run_tournoi(tournoi):
     """Fonction de début de tournoi, prépare un tableau des scores et lance les tours"""
 
-#       Prépare le tableau des scores
-    sorted_players = sorted(tournoi.players, key=lambda Player: int(Player.classement))
-    score_table = []
-    for player in sorted_players:
-        score_table.append([player, 0])
+    model.Acteurs.last_tournoi = tournoi
+#   Prépare le tableau des scores
 
-#       Prépare le dictionnaire des joueurs déjà affrontés
+    sorted_players = sorted(tournoi.players, key=lambda Player: int(Player.classement))        
+    score_table = []
+    
+    for index, player in enumerate(sorted_players):
+        sorted_players[index] = player.id
+        score_table.append([player.id, 0])
+#   Prépare le dictionnaire des joueurs déjà affrontés
     already_played = {}
     for player in sorted_players:
         already_played[player] = []
     
-#       Lance les tours
-    for index, tours in enumerate(range(tournoi.nombre_tours)):
 
-#           Met à jour le tableau des scores à partir du second tour
-        if index >= 1:
-            for number, player in enumerate(score_table):
-                sorted_players[number] = player[0]
+#   Met à jour le tableau des scores à partir du second tour
+    if tournoi.tour_actuel >= 2:
+        for number, player in enumerate(score_table):
+            sorted_players[number] = player[0]
 
-        nom_tour = "Round " + str(index + 1)
-        tour = model.Tour(nom_tour, sorted_players, already_played)
-        tournoi.liste_tours.append(tour)
-        run_tour(tour)
-        score_table = end_tour(tour, score_table)
+    nom_tour = "Round " + str(tournoi.tour_actuel)
+    tour = model.Tour(nom_tour, sorted_players, already_played)
+    tournoi.liste_tours.append(tour)
+    run_tour(tour)
+    tournoi.score_table = end_tour(tour, score_table)
 
-#           Print le tableau des scores
-        for joueur in score_table:
-            print(joueur[0].__str__() + " : " + str(joueur[1]))
+#   Print le tableau des scores
+    for joueur in score_table:
+            print(model.Player.find_by_id(joueur[0])[0].__str__() + " : " + str(joueur[1]))
+
+    tournoi.tour_actuel += 1
 
 
 def run_tour(tour):
     """Fonction de début de tour, lance les matchs"""
-    print("\n" + tour.name + " :\n")
+    print("\n" + tour.nom + " :\n")
 #       Assignation de l'heure de début        
     tour.heure_debut = time.strftime("%H:%M", time.localtime())
     nombre_tours = int(len(tour.players) / 2)
@@ -93,8 +100,8 @@ def run_tour(tour):
 
 #       Créer les matchs
     for match in range(nombre_tours):
-        if tour.name == "Round 1":
-            tour.liste_match.append(model.Match(tour.players[match], tour.players[match + nombre_tours]))
+        if tour.nom == "Round 1":
+            tour.liste_matchs.append(model.Match(tour.players[match], tour.players[match + nombre_tours]))
 #               On ajoute les joueurs affrontés dans le dictionnaire du joueur
             tour.already_played[tour.players[match]].append(tour.players[match + nombre_tours])
             tour.already_played[tour.players[match + nombre_tours]].append(tour.players[match])
@@ -106,36 +113,36 @@ def run_tour(tour):
                     joueur2 = copy_players.pop(index)
                     break
 
-            tour.liste_match.append(model.Match(joueur1, joueur2))
+            tour.liste_matchs.append(model.Match(joueur1, joueur2))
 #               On ajoute les joueurs affrontés dans le dictionnaire du joueur
             tour.already_played[joueur1].append(joueur2)
             tour.already_played[joueur2].append(joueur1)
             
 #       Impression des matchs
-    showMatchs(tour.liste_match)
+    showMatchs(tour.liste_matchs)
 
 
-def end_tour(tour, tableau_scores):
+def end_tour(tour, score_table):
     """Fonction de fin de tour, met à jour le tableau des scores"""
 
     tour.heure_fin = time.strftime("%H:%M", time.localtime())
-    for match in tour.liste_match:
+    for match in tour.liste_matchs:
         endTurn(match)
-    setScore(tour.liste_match, tableau_scores)
+    setScore(tour.liste_matchs, score_table)
 
-    return sorted(tableau_scores, key=lambda score: score[1], reverse=True)
+    return sorted(score_table, key=lambda score: score[1], reverse=True)
 
 
-def showMatchs(liste_match):
-    for match in liste_match:
+def showMatchs(liste_matchs):
+    for match in liste_matchs:
         print(match.__str__())
     print("\n")
 
 
 def endTurn(match):
     print("\nQui a gagné le match ?\n")
-    print("[1] " + match.joueur1[0].__str__())
-    print("[2] " + match.joueur2[0].__str__())
+    print("[1] " + model.Player.find_by_id(match.joueur1[0])[0].__str__())
+    print("[2] " + model.Player.find_by_id(match.joueur2[0])[0].__str__())
     print("[3] Match nul")
     reponse = input()
 
@@ -160,3 +167,5 @@ def setScore(matchs, score_table):
                 joueur[1] += match.result[0][1]
             if match.result[1][0] == joueur[0]:
                 joueur[1] += match.result[1][1]
+
+

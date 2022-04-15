@@ -1,12 +1,13 @@
 from Controller import rapports
 from Controller import chargement
 from Controller import tournoi
+from Model import model
 import time
 
 def Menu():
     print("Veuillez choisir un menu :")
     print("")
-    print("[1] Lancer un tournoi")
+    print("[1] Menu des tournoi")
     print("[2] Ajouter un nouveau joueur")
     print("[3] Afficher la liste de...")
     print("[4] Sauvegarder")
@@ -23,7 +24,7 @@ def MenuListes():
 
 def MenuTournoi():
     print("[1] Créer un tournoi")
-    print("[2] Lancer un tournoi")
+    print("[2] Reprendre un tournoi")
 
 
 def run():
@@ -36,7 +37,7 @@ def run():
         print()
         match reponse:
             case "0":
-                print()
+                print(model.Player.id_list)
                 
             case "1":
                 MenuTournoi()
