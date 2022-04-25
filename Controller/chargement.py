@@ -39,7 +39,7 @@ def serialize_tour(tour):
         "liste_matchs": serialized_matchs,
         "heure_debut": tour.heure_debut,
     }
-    if tour.heure_fin is not None:
+    if hasattr(tour, "heure_fin") == True:
         serialized_tour["heure_fin"] = tour.heure_fin
     return serialized_tour
 
@@ -107,20 +107,21 @@ def deserialize_tournoi(tournoi):
     return tournament
 
 
-def deserialize_tour(tour):
+def deserialize_tour(turn):
     liste_matchs = []
-    for match in tour["liste_matchs"]:
+    for match in turn["liste_matchs"]:
         liste_matchs.append(deserialize_match(match))
 
-    nom = tour["nom"]
-    players = tour["players"]
-    heure_debut = tour["heure_debut"]
-    heure_fin = tour["heure_fin"]
+    nom = turn["nom"]
+    players = turn["players"]
+    heure_debut = turn["heure_debut"]
 
     tour = model.Tour(nom, players)
     tour.liste_matchs = liste_matchs
     tour.heure_debut = heure_debut
-    tour.heure_fin = heure_fin
+
+    if "heure_fin" in turn:
+        tour.heure_fin = turn["heure_fin"]
 
     return tour
 

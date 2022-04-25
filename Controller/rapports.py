@@ -51,6 +51,7 @@ def showPlayers(what, ordre):
             headers="keys",
         )
     )
+    print()
 
 
 def showTournois():
@@ -86,6 +87,7 @@ def showTournois():
             headers="keys",
         )
     )
+    print()
 
 
 def showTours():
@@ -98,7 +100,10 @@ def showTours():
     for tour in tournament.liste_tours:
         noms.append(tour.nom)
         heure_debut.append(tour.heure_debut)
-        heure_fin.append(tour.heure_fin)
+        if hasattr(tour, "heure_fin") == True:
+            heure_fin.append(tour.heure_fin)
+        else:
+            heure_fin.append("Pas terminé")
 
     print(
         tabulate(
@@ -106,14 +111,26 @@ def showTours():
             headers="keys",
         )
     )
+    print()
 
 
 def show_tournoi_matchs():
     tournament = tournoi.search_tournoi()
     for tour in tournament.liste_tours:
-        print(tour.nom + " :\n")
+        print("\n" + tour.nom + " :\n")
+        joueurs1 = []
+        joueurs2 = []
+        vs = []
+        scores = []
         for match in tour.liste_matchs:
-            score = match.show_score()
-            match_str = match.__str__()
-            print(match_str + score)
-        print()
+            joueurs1.append(Player.find_by_id(match.joueur1[0]).__str__())
+            joueurs2.append(Player.find_by_id(match.joueur2[0]).__str__())
+            vs.append("vs")
+            scores.append(match.show_score())
+        print(
+            tabulate(
+                {"Joueur 1": joueurs1, "Vs": vs, "Joueur 2": joueurs2, "Score": scores},
+                headers="keys",
+            )
+        )
+        print("\n\n")

@@ -6,10 +6,10 @@ import uuid
 
 
 def add_player():
-    nom = input("Saisir le nom de famille du joueur : ")
-    prenom = input("Saisir le prénom du joueur : ")
-    date = input("Saisir la date de naissance du joueur : ")
-    classement = input("Saisir le classement du joueur : ")
+    nom = input("\nSaisir le nom de famille du joueur : \n")
+    prenom = input("Saisir le prénom du joueur : \n")
+    date = input("Saisir la date de naissance du joueur : \n")
+    classement = input("Saisir le classement du joueur : \n")
     id = str(uuid.uuid4())
     joueur = model.Player(nom, prenom, date, classement, id)
     model.Acteurs.joueurs.append(joueur)
@@ -17,21 +17,21 @@ def add_player():
 
 
 def create_tournoi():
-    nom = input("Saisir le nom du tournoi : ")
-    lieu = input("Saisir le lieu du tournoi : ")
-    date = input("Saisir la date du tournoi : ")
-    nombre_tours = int(input("Saisir le nombre de tours (4 par défaut) : "))
-    print("Saisir le temps pour chaque round :")
+    nom = input("Saisir le nom du tournoi : \n")
+    lieu = input("Saisir le lieu du tournoi : \n")
+    date = input("Saisir la date du tournoi : \n")
+    nombre_tours = int(input("Saisir le nombre de tours (4 par défaut) : \n"))
+    print("Saisir le temps pour chaque round :\n")
     print("[1] Bullet    [2] Blitz    [3] Rapide")
     timer = input()
-    description = input("Saisir la description (facultatif) : ")
+    description = input("Saisir la description (facultatif) : \n")
 
     players = []
     while len(players) < 8:
         joueur = search_player()
         if joueur is not False:
             if joueur in players:
-                print("Ce joueur est déjà inscrit dans le tournoi")
+                print("\nCe joueur est déjà inscrit dans le tournoi\n")
             else:
                 players.append(joueur)
                 print("\nJoueur ajouté !\n")
@@ -73,12 +73,30 @@ def run_tournoi(tournoi):
     """Fonction de début de tournoi, prépare un tableau des scores et lance les tours"""
 
     if tournoi.tour_actuel != "Terminé":
+        last_tour = tournoi.liste_tours[-1]
+        if hasattr(last_tour, "heure_fin") == False:
+            tournoi.score_table = end_tour(last_tour, tournoi.score_table)
+            time.sleep(1)
+
         nom_tour = "Round " + str(tournoi.tour_actuel)
         tour = model.Tour(nom_tour, tournoi.players)
         tournoi.liste_tours.append(tour)
         print(tournoi.liste_tours)
         run_tour(tour, tournoi.already_played, tournoi.nombre_tours)
-        tournoi.score_table = end_tour(tour, tournoi.score_table)
+
+        time.sleep(1)
+
+        print("\nLe tour est-il terminé ?")
+        print("\n[1] Oui")
+        print("[2] Non\n")
+
+        match input():
+
+            case "1":
+                tournoi.score_table = end_tour(tour, tournoi.score_table)
+
+            case _:
+                pass
 
         #   Print le tableau des scores
         for joueur in tournoi.score_table:
@@ -90,7 +108,7 @@ def run_tournoi(tournoi):
             tournoi.tour_actuel = "Terminé"
 
     else:
-        print("Ce tournoi est terminé")
+        print("\nCe tournoi est terminé\n")
 
 
 def reprendre_tournoi():
@@ -98,6 +116,7 @@ def reprendre_tournoi():
 
     tournois = model.Acteurs.tournois
 
+    print()
     for index in range(5):
         if index == len(tournois):
             break
@@ -166,7 +185,7 @@ def end_tour(tour, score_table):
         print("\nQui a gagné le match ?\n")
         print("[1] " + model.Player.find_by_id(match.joueur1[0]).__str__())
         print("[2] " + model.Player.find_by_id(match.joueur2[0]).__str__())
-        print("[3] Match nul")
+        print("[3] Match nul\n")
         reponse = input()
 
         match reponse:
@@ -220,9 +239,9 @@ def search_player():
             if to_norme(prenom) == to_norme(joueur.prenom.lower()):
                 return joueur
     if found == False:
-        print("Ce joueur n'existe pas, voulez-vous l'ajouter ?")
+        print("\nCe joueur n'existe pas, voulez-vous l'ajouter ?")
         print("[1] Oui")
-        print("[2] Non")
+        print("[2] Non\n")
         reponse_ajout = input()
         match reponse_ajout:
 
@@ -231,6 +250,32 @@ def search_player():
 
             case _:
                 return False
+
+
+def modify_player(player):
+    print("\nQue voulez vous modifier ?\n")
+    print("[1] Nom de famille")
+    print("[2] Prénom")
+    print("[3] Date de naissance")
+    print("[4] Classement\n")
+
+    match input():
+
+        case "1":
+            player.nom = input("\nSaisir le nouveau nom de famille : \n")
+
+        case "2":
+            player.prenom = input("\nSaisir le nouveau prénom : \n")
+
+        case "3":
+            player.date = input("\nSaisir la nouvelle date de naissance : \n")
+
+        case "4":
+            player.classement = input("\nSaisir le nouveau classement : \n")
+
+        case _:
+            print("\nCommande non reconnue\n")
+            modify_player(player)
 
 
 def search_tournoi():
