@@ -1,17 +1,43 @@
+from urllib import response
 from Controller import rapports
 from Controller import chargement
 from Controller import tournoi
 from Model import model
 import time
 
+
 def Menu():
     print("Veuillez choisir un menu :")
     print("")
     print("[1] Menu des tournoi")
-    print("[2] Ajouter un nouveau joueur")
+    print("[2] Menu des joueurs")
     print("[3] Afficher la liste de...")
     print("[4] Sauvegarder")
     print("[5] Quitter")
+    print()
+    reponse = input()
+    match reponse:
+        case "0":
+            print(model.Player.id_list)
+
+        case "1":
+            MenuTournoi()
+
+        case "2":
+            MenuJoueurs()
+
+        case "3":
+            MenuListes()
+
+        case "4":
+            chargement.save_data()
+            print("\nDonnées sauvegardées\n")
+
+        case "5":
+            quit()
+
+        case _:
+            print("\nCommande non reconnue\n")
 
 
 def MenuListes():
@@ -20,85 +46,78 @@ def MenuListes():
     print("[3] Tous les tournois")
     print("[4] Tous les tours d'un tournoi")
     print("[5] Tous les matchs d'un tournoi")
+    print()
+
+    response = input()
+    match response:
+        case "1":
+            print("Afficher par ordre...")
+            print("[1] Alphabétique")
+            print("[2] Classement")
+            rapports.showPlayers("all", input())
+
+        case "2":
+            tournament = tournoi.search_tournoi()
+            print("\nAfficher par ordre...")
+            print("[1] Alphabétique")
+            print("[2] Classement\n")
+            rapports.showPlayers(tournament, input())
+
+        case "3":
+            rapports.showTournois()
+
+        case "4":
+            rapports.showTours()
+
+        case "5":
+            rapports.show_tournoi_matchs()
+
+
+def MenuJoueurs():
+    print("[1] Ajouter un joueur")
+    print("[2] Modifier un joueur")
+    print()
+    match input():
+        case "1":
+            tournoi.add_player()
+
+        case "2":
+            pass
 
 
 def MenuTournoi():
     print("[1] Créer un tournoi")
     print("[2] Reprendre un tournoi")
+    print()
+    reponse_tournoi = input()
+
+    match reponse_tournoi:
+
+        case "1":
+            tournament = tournoi.create_tournoi()
+            print("Voulez vous lancer le tournoi maintenant ?\n")
+            print("[1] Oui")
+            print("[2] Non")
+            reponse_start_tournoi = input()
+
+            match reponse_start_tournoi:
+
+                case "1":
+                    tournoi.run_tournoi(tournament)
+
+                case _:
+                    pass
+
+        case "2":
+            tournoi.reprendre_tournoi()
 
 
 def run():
-    while(True):
+    while True:
 
         print()
         Menu()
         print()
-        reponse = input("")
-        print()
-        match reponse:
-            case "0":
-                print(model.Player.id_list)
-                
-            case "1":
-                MenuTournoi()
-                reponse_tournoi = input()
 
-                match reponse_tournoi:
-                    
-                    case "1":
-                        tournament = tournoi.createTournoi()
-                        print("Voulez vous lancer le tournoi maintenant ?\n")
-                        print("[1] Oui")
-                        print("[2] Non")
-                        reponse_start_tournoi = input()
-
-                        match reponse_start_tournoi:
-
-                            case "1":
-                                tournoi.run_tournoi(tournament)
-
-                            case "2":
-                                pass
-
-
-                    case "2":
-                        pass
-
-            case "2":
-                tournoi.addPlayer()
-
-            case "3":
-                MenuListes()
-                reponse_list = input()
-                match reponse_list:
-                    case "1":
-                        print("Afficher par ordre...")
-                        print("[1] Alphabétique")
-                        print("[2] Classement")
-                        rapports.showPlayers("all", input())
-                        
-
-                    case "2":
-#                        tournoi =
-                        rapports.showPlayers(tournoi, input())
-
-                    case "3":
-                        rapports.showTournois()
-
-                    case "4":
-                        rapports.showTours()
-                        
-                    case "5":
-                        pass
-            
-            case "4":
-                chargement.save_data()
-                print("\nDonnées sauvegardées\n")
-
-            case "5":
-                quit()
-
-            case _:
-                print("\nCommande non reconnue\n")
-
+        chargement.save_data()
         time.sleep(1)
