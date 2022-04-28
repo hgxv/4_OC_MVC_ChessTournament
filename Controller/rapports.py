@@ -4,7 +4,7 @@ from Controller import tournoi
 from tabulate import tabulate
 
 
-def showPlayers(what, ordre):
+def show_players(what, ordre):
 
     match what:
         case "all":
@@ -14,7 +14,6 @@ def showPlayers(what, ordre):
             joueurs = []
             for joueur in tournoi.players:
                 joueurs.append(Player.find_by_id(joueur))
-            print(joueurs)
 
     match ordre:
 
@@ -64,14 +63,14 @@ def showTournois():
     nombre_tours = []
     descriptions = []
 
-    for tournoi in Acteurs.tournois:
-        noms.append(tournoi.nom)
-        lieux.append(tournoi.lieu)
-        dates.append(tournoi.date)
-        timers.append(tournoi.timer)
-        tours_actuel.append(tournoi.tour_actuel)
-        nombre_tours.append(tournoi.nombre_tours)
-        descriptions.append(tournoi.description)
+    for tournament in Acteurs.tournois:
+        noms.append(tournament.nom)
+        lieux.append(tournament.lieu)
+        dates.append(tournament.date)
+        timers.append(tournament.timer)
+        tours_actuel.append(tournament.tour_actuel)
+        nombre_tours.append(tournament.nombre_tours)
+        descriptions.append(tournament.description)
 
     print(
         tabulate(
@@ -100,7 +99,7 @@ def showTours():
     for tour in tournament.liste_tours:
         noms.append(tour.nom)
         heure_debut.append(tour.heure_debut)
-        if hasattr(tour, "heure_fin") == True:
+        if hasattr(tour, "heure_fin") is True:
             heure_fin.append(tour.heure_fin)
         else:
             heure_fin.append("Pas terminé")

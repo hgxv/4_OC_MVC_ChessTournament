@@ -1,4 +1,3 @@
-from datetime import date
 from tinydb import TinyDB
 from Model import model
 
@@ -37,9 +36,10 @@ def serialize_tour(tour):
         "nom": tour.nom,
         "players": tour.players,
         "liste_matchs": serialized_matchs,
-        "heure_debut": tour.heure_debut,
     }
-    if hasattr(tour, "heure_fin") == True:
+    if hasattr(tour, "heure_debut") is True:
+        serialized_tour["heure_debut"] = tour.heure_debut
+    if hasattr(tour, "heure_fin") is True:
         serialized_tour["heure_fin"] = tour.heure_fin
     return serialized_tour
 
@@ -114,11 +114,12 @@ def deserialize_tour(turn):
 
     nom = turn["nom"]
     players = turn["players"]
-    heure_debut = turn["heure_debut"]
 
     tour = model.Tour(nom, players)
     tour.liste_matchs = liste_matchs
-    tour.heure_debut = heure_debut
+
+    if "heure_debut" in turn:
+        tour.heure_debut = turn["heure_debut"]
 
     if "heure_fin" in turn:
         tour.heure_fin = turn["heure_fin"]

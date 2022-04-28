@@ -1,7 +1,7 @@
-from urllib import response
 from Controller import rapports
 from Controller import chargement
 from Controller import tournoi
+from View import inputs
 from Model import model
 import time
 
@@ -54,14 +54,14 @@ def MenuListes():
             print("\nAfficher par ordre...\n")
             print("[1] Alphabétique")
             print("[2] Classement\n")
-            rapports.showPlayers("all", input())
+            rapports.show_players("all", input())
 
         case "2":
             tournament = tournoi.search_tournoi()
             print("\nAfficher par ordre...\n")
             print("[1] Alphabétique")
             print("[2] Classement\n")
-            rapports.showPlayers(tournament, input())
+            rapports.show_players(tournament, input())
 
         case "3":
             rapports.showTournois()
@@ -83,7 +83,7 @@ def MenuJoueurs():
 
         case "2":
             player = tournoi.search_player()
-            tournoi.modify_player(player)
+            inputs.modify_player(player)
 
 
 def MenuTournoi():
