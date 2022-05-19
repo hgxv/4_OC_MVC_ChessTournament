@@ -45,7 +45,7 @@ class Tournoi:
                 self.timer = timer
 
     def __str__(self):
-        return self.nom + ", " + self.date + ", " + self.lieu
+        return self.nom
 
 
 class Player:
@@ -59,6 +59,7 @@ class Player:
         self.id = id
         Player.id_list[self.id].append(self)
 
+    # Permet de trouver un Joueur grâce à son identifiant unique
     @classmethod
     def find_by_id(cls, id):
         return Player.id_list[id][0]
