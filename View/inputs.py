@@ -1,8 +1,10 @@
 import uuid
 from Controller import tournoi
+from Model import model
 
 
 def player_input():
+    """Demande à l'utilisateur les données de l'instance Joueur"""
     nom = input("\nSaisir le nom de famille du joueur : \n")
     prenom = input("\nSaisir le prénom du joueur : \n")
     date = input("\nSaisir la date de naissance du joueur : \n")
@@ -14,15 +16,19 @@ def player_input():
         except ValueError:
             print("Merci de saisir un nombre entier")
 
+    # Attribue un identifiant unique au joueur
     id = str(uuid.uuid4())
 
     return nom, prenom, date, classement, id
 
 
 def tournoi_input():
+    """Demande à l'utilisateur les données de l'instance Tournoi"""
+
     nom = input("Saisir le nom du tournoi : \n")
     lieu = input("Saisir le lieu du tournoi : \n")
     date = input("Saisir la date du tournoi : \n")
+    # Demande 8 joueurs
     while True:
         try:
             nombre_tours = int(input("Saisir le nombre de tours (4 par défaut) : \n"))
@@ -46,6 +52,7 @@ def tournoi_input():
 
 
 def is_turn_finished(tour, score_table):
+    """Demande à l'utilisateur s'il souhaite terminer le tour"""
     match input():
 
         case "1":
@@ -55,23 +62,36 @@ def is_turn_finished(tour, score_table):
             pass
 
 
-def reprise_tournoi(tournois):
+def last_tournois():
+    """Affiche les 5 derniers tournois créés pour faciliter l'accès"""
+    tournois = model.Acteurs.tournois
+    print()
+
+    for index in range(5):
+        if index == len(tournois):
+            break
+        print("[" + str(index + 1) + "] " + tournois[-index - 1].__str__())
+
+    print("\n[6] Un autre")
 
     reponse = input()
     match reponse:
 
         case "1" | "2" | "3" | "4" | "5":
-            tournoi.run_tournoi(tournois[int(reponse) - 1])
+            return tournois[-int(reponse)]
 
+        # Propose à l'utilisateur de chercher un autre tournoi
         case "6":
             tournament = tournoi.search_tournoi()
-            tournoi.run_tournoi(tournament)
+            return tournament
 
         case _:
             print("\nCommande non reconnue\n")
+            last_tournois(tournois)
 
 
 def set_score(match, joueur1, joueur2):
+    """Demande à l'utilisateur qui a gagné un Match"""
     print("\nQui a gagné le match ?\n")
     print("[1] " + joueur1)
     print("[2] " + joueur2)
@@ -96,6 +116,8 @@ def set_score(match, joueur1, joueur2):
 
 
 def search_player_input():
+    """Demande à l'utilisateur le nom et prénom du joueur qu'il recherche"""
+
     print("\nSaisir le nom du joueur à ajouter :")
     nom = input().lower()
     print("\nSaisir le prénom du joueur à ajouter :")
@@ -105,6 +127,8 @@ def search_player_input():
 
 
 def want_add():
+    """Demande à l'utilisateur s'il souhaite créer un Joueur"""
+
     print("\nCe joueur n'existe pas, voulez-vous l'ajouter ?")
     print("[1] Oui")
     print("[2] Non\n")
@@ -114,6 +138,7 @@ def want_add():
 
 
 def modify_player(player):
+    """Demande quel attribut d'un joueur il souhaite modifier"""
     print("\nQue voulez vous modifier ?\n")
     print("[1] Nom de famille")
     print("[2] Prénom")

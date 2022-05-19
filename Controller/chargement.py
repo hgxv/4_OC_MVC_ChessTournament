@@ -8,6 +8,7 @@ tournois_table = db.table("tournois")
 
 
 def serialize_player(player):
+    """Serialize un joueur donné"""
     serialized_player = {
         "nom": player.nom,
         "prenom": player.prenom,
@@ -19,7 +20,7 @@ def serialize_player(player):
 
 
 def serialize_match(match):
-
+    """Serialize un match donné"""
     serialized_match = {
         "joueur1": match.joueur1,
         "joueur2": match.joueur2,
@@ -28,6 +29,7 @@ def serialize_match(match):
 
 
 def serialize_tour(tour):
+    """Serialize un tour donné"""
     serialized_matchs = []
     for match in tour.liste_matchs:
         serialized_matchs.append(serialize_match(match))
@@ -45,6 +47,7 @@ def serialize_tour(tour):
 
 
 def serialize_tournoi(tournoi):
+    """Serialize un tournoi donné"""
     serialized_tours = []
     for tour in tournoi.liste_tours:
         serialized_tours.append(serialize_tour(tour))
@@ -66,6 +69,7 @@ def serialize_tournoi(tournoi):
 
 
 def deserialize_player(player):
+    """Deserialize un joueur donné"""
     nom = player["nom"]
     prenom = player["prenom"]
     date = player["date"]
@@ -75,6 +79,7 @@ def deserialize_player(player):
 
 
 def deserialize_tournoi(tournoi):
+    """Deserialize un tournoi donné"""
     players = tournoi["players"]
 
     liste_tours = []
@@ -108,6 +113,7 @@ def deserialize_tournoi(tournoi):
 
 
 def deserialize_tour(turn):
+    """Deserialize un tour donné"""
     liste_matchs = []
     for match in turn["liste_matchs"]:
         liste_matchs.append(deserialize_match(match))
@@ -128,6 +134,7 @@ def deserialize_tour(turn):
 
 
 def deserialize_match(match):
+    """Deserialize un match donné"""
     joueur1 = match["joueur1"][0]
     joueur2 = match["joueur2"][0]
     score1 = match["joueur1"][1]
@@ -139,6 +146,7 @@ def deserialize_match(match):
 
 
 def charge_data():
+    """Effectue la deserialization de toutes les données"""
     serialized_players = players_table.all()
     serialized_tournois = tournois_table.all()
 
@@ -150,6 +158,7 @@ def charge_data():
 
 
 def save_data():
+    """Effectue la serialization de toutes les données"""
     players_table.truncate()
     tournois_table.truncate()
 

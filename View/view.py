@@ -7,6 +7,8 @@ import time
 
 
 def Menu():
+    """Affiche le menu principal"""
+
     print("\nVeuillez choisir un menu :")
     print("")
     print("[1] Menu des tournoi")
@@ -41,6 +43,8 @@ def Menu():
 
 
 def MenuListes():
+    """Affiche le menu Rapports"""
+
     print("\n[1] Tous les joueurs")
     print("[2] Tous les joueurs d'un tournoi")
     print("[3] Tous les tournois")
@@ -57,7 +61,7 @@ def MenuListes():
             rapports.show_players("all", input())
 
         case "2":
-            tournament = tournoi.search_tournoi()
+            tournament = inputs.last_tournois()
             print("\nAfficher par ordre...\n")
             print("[1] Alphabétique")
             print("[2] Classement\n")
@@ -74,6 +78,8 @@ def MenuListes():
 
 
 def MenuJoueurs():
+    """Affiche le menu Joueur"""
+
     print("\n[1] Ajouter un joueur")
     print("[2] Modifier un joueur")
     print()
@@ -87,6 +93,8 @@ def MenuJoueurs():
 
 
 def MenuTournoi():
+    """Affiche le menu Tournoi"""
+
     print("\n[1] Créer un tournoi")
     print("[2] Reprendre un tournoi")
     print()
@@ -114,11 +122,13 @@ def MenuTournoi():
 
 
 def run():
+    """Défini un cycle de Menu"""
     while True:
 
         print()
         Menu()
         print()
 
+        # Sauvegarde les données à chaque cycle, "au cas où"
         chargement.save_data()
         time.sleep(1)

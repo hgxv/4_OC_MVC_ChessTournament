@@ -1,11 +1,11 @@
 from Model.model import Acteurs
 from Model.model import Player
-from Controller import tournoi
+from View import inputs
 from tabulate import tabulate
 
 
 def show_players(what, ordre):
-
+    """Effectue le rapport des instances Joueurs"""
     match what:
         case "all":
             joueurs = Acteurs.joueurs
@@ -54,7 +54,7 @@ def show_players(what, ordre):
 
 
 def showTournois():
-
+    """EFfectue le rapport des instances Tournois"""
     noms = []
     lieux = []
     dates = []
@@ -90,7 +90,8 @@ def showTournois():
 
 
 def showTours():
-    tournament = tournoi.search_tournoi()
+    """Effecture le rapport des instances Tours"""
+    tournament = inputs.last_tournois()
 
     noms = []
     heure_debut = []
@@ -114,7 +115,8 @@ def showTours():
 
 
 def show_tournoi_matchs():
-    tournament = tournoi.search_tournoi()
+    """Affiche le tableau des scores quand l'utilisateur a fini de rentrer les scores"""
+    tournament = inputs.last_tournois()
     for tour in tournament.liste_tours:
         print("\n" + tour.nom + " :\n")
         joueurs1 = []

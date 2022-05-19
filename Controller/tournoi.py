@@ -5,10 +5,11 @@ import time
 
 
 def create_tournoi():
-
+    """Créé un tournoi"""
     nom, lieu, date, nombre_tours, timer, description = inputs.tournoi_input()
 
     players = []
+    # On ajoute 8 joueurs au tournoi
     while len(players) < 8:
         joueur = search_player()
         if joueur is not False:
@@ -18,17 +19,12 @@ def create_tournoi():
                 players.append(joueur)
                 print("\nJoueur ajouté !\n")
 
+    # Prépare le tableau des scores pour le début du tournoi
     players.sort(key=lambda Player: int(Player.classement))
+    players_id = [p.id for p in players]
+    score_table = [[p.id, 0] for p in players]
 
-    players_id = []
-    for player in players:
-        players_id.append(player.id)
-
-    score_table = []
-    for player in players:
-        score_table.append([player.id, 0])
-
-    #   Prépare le dictionnaire des joueurs déjà affrontés
+    # Prépare le dictionnaire des joueurs déjà affrontés
     already_played = {}
     for player in players_id:
         already_played[player] = []
@@ -47,6 +43,7 @@ def create_tournoi():
         nombre_tours,
     )
 
+    # Ajoute le tournoi à la liste des tournois et le sauvegarde
     model.Acteurs.tournois.append(tournoi)
     chargement.tournois_table.insert(chargement.serialize_tournoi(tournoi))
     return tournoi
@@ -87,19 +84,8 @@ def run_tournoi(tournoi):
 def reprendre_tournoi():
     """Cette fonction permet de reprendre un tournoi là où il en était"""
 
-    tournois = model.Acteurs.tournois
-
     # Affiche la liste des 5 derniers tournois pour un accès plus rapide
-    print()
-
-    for index in range(5):
-        if index == len(tournois):
-            break
-        print("[" + str(index + 1) + "] " + tournois[index].__str__())
-
-    print("\n[6] Un autre")
-
-    inputs.reprise_tournoi(tournois)
+    run_tournoi(inputs.last_tournois())
 
 
 def run_tour(tour, already_played, score_table):
@@ -109,41 +95,118 @@ def run_tour(tour, already_played, score_table):
     if hasattr(tour, "heure_debut") is False:
         tour.heure_debut = time.strftime("%H:%M", time.localtime())
 
-    players = []
-    for player in score_table:
-        players.append(player[0])
-
-    #   Créer les matchs
+    # On prépare la liste des joueurs triée par points
+    players = [p[0] for p in score_table]
     nombre_matchs = int(len(tour.players) / 2)
-    for match in range(nombre_matchs):
-        if tour.nom == "Round 1":
-            tour.liste_matchs.append(
-                model.Match(
-                    tour.players[match], tour.players[nombre_matchs + match], 0, 0
-                )
-            )
-            # On ajoute les joueurs affrontés dans le dictionnaire du joueur
-            already_played[tour.players[match]].append(
-                tour.players[nombre_matchs + match]
-            )
-            already_played[tour.players[nombre_matchs + match]].append(
-                tour.players[match]
-            )
-        else:
-            # Vérifier si deux joueurs se sont déjà affronté avant de créer le match
-            joueur1 = players.pop(0)
-            for index, player in enumerate(players):
-                if player not in already_played[joueur1]:
-                    joueur2 = players.pop(index)
-                    break
 
+    if tour.nom == "Round 1":
+        first_round(tour, already_played, nombre_matchs)
+
+    else:
+        # On prépare une liste prévisionnelle des matchs à corriger
+        matchs = [
+            [joueur1, joueur2] for joueur1, joueur2 in zip(players[::2], players[1::2])
+        ]
+
+        create_rounds(players, matchs, already_played, nombre_matchs)
+
+        for match in matchs:
+            joueur1 = match[0]
+            joueur2 = match[1]
+            # Création des rounds
             tour.liste_matchs.append(model.Match(joueur1, joueur2, 0, 0))
             # On ajoute les joueurs affrontés dans le dictionnaire du joueur
             already_played[joueur1].append(joueur2)
             already_played[joueur2].append(joueur1)
-
     # Impression des matchs
     show_matchs(tour.liste_matchs)
+
+
+def first_round(tour, already_played, nombre_matchs):
+    """Créé le premier round"""
+    for match in range(nombre_matchs):
+        tour.liste_matchs.append(
+            model.Match(
+                tour.players[match], tour.players[nombre_matchs + match], 0, 0
+            )
+        )
+        # On ajoute les joueurs affrontés dans le dictionnaire du joueur
+        already_played[tour.players[match]].append(
+            tour.players[nombre_matchs + match]
+        )
+        already_played[tour.players[nombre_matchs + match]].append(
+            tour.players[match]
+        )
+
+
+def create_rounds(players, matchs, already_played, nombre_matchs):
+    """Créé des rounds à partir du second round.
+    Les joueurs ne s'affrontent qu'une seule fois."""
+    index = 0
+    exception_index = 1
+
+    # Tableau des 2ème joueurs, ce sont les joueurs "disponibles"
+    disponible = players[1::2]
+
+    # Dictionnaire des joueurs valides à affronter
+    can_duel = {}
+    for player in players:
+        can_duel[player] = iter(
+            [p for p in players if p not in already_played[player] and p is not player]
+        )
+
+    while index < nombre_matchs:
+        match = matchs[index]
+        joueur1 = match[0]
+        joueur2 = match[1]
+
+        is_valid = True
+
+        # Check si joueur 1 et joueur 2 se sont déjà affrontés
+        if joueur2 in already_played[joueur1]:
+            is_valid = False
+            matchs[index][1] = next(can_duel[joueur1])
+            continue
+
+        # Check si joueur 1 ou joueur 2 apparaissent dans les matchs précédents
+        for rencontre in matchs[:index]:
+            if joueur1 in rencontre or joueur1 == joueur2:
+                is_valid = False
+                # Si le joueur 1 est déjà dans les matchs, on le remplace avec le 1er joueur "disponible"
+                matchs[index][0] = disponible.pop(0)
+                # Le joueur 1 devient donc disponible
+                disponible.append(joueur1)
+                for player in players:
+                    # Avec le joueur 1 devenu disponible, on reset les iterateurs
+                    can_duel[player] = iter(
+                        [p for p in players if p not in already_played[player] and p is not player]
+                    )
+                continue
+
+            if joueur2 in rencontre:
+                is_valid = False
+                try:
+                    # Si joueur 2 est déjà dans le match on essaie le prochain "disponible"
+                    matchs[index][1] = next(can_duel[joueur1])
+                except StopIteration:
+                    # Si on atteint le dernier, on revient au match précédent
+                    index -= exception_index
+                    try:
+                        # Une fois revenu en arrière on essaie de passer au prochain "disponible"
+                        matchs[index][1] = next(can_duel[matchs[index][0]])
+                        for player in (joueur1, joueur2, matchs[index][1], matchs[index][1]):
+                            # On reset les iterateurs pour avancer dans les futurs rounds
+                            can_duel[player] = iter(
+                                [p for p in disponible if p not in already_played[joueur1] and p is not joueur1]
+                            )
+                    except StopIteration:
+                        # On revient encore plus loin dans les rounds
+                        exception_index += 1
+
+                continue
+
+        if is_valid is True:
+            index += 1
 
 
 def end_tour(tour, score_table):
@@ -169,12 +232,14 @@ def end_tour(tour, score_table):
 
 
 def show_matchs(liste_matchs):
+    """Effectue l'affiche des matchs à la fin d'un round"""
     for match in liste_matchs:
         print(match.__str__())
     print("\n")
 
 
 def set_scores(matchs, score_table):
+    """Met à jour le tableau des scores d'un tour grâce aux inputs"""
     for match in matchs:
         for joueur in score_table:
             if match.result[0][0] == joueur[0]:
@@ -184,11 +249,13 @@ def set_scores(matchs, score_table):
 
 
 def to_norme(string):
+    """Enlève les caractères spéciaux d'un string"""
     table = string.maketrans("âàäçéèêëîïùû", "aaaceeeeiiuu")
     return string.translate(table)
 
 
 def search_player():
+    """Recherche un joueur à partir de son nom et de son prénom"""
 
     nom, prenom = inputs.search_player_input()
     found = False
@@ -210,6 +277,7 @@ def search_player():
 
 
 def search_tournoi():
+    """Cherche un tournoi à partir de son nom"""
     nom = inputs.nom_tournoi()
     found = False
 
@@ -223,6 +291,8 @@ def search_tournoi():
 
 
 def add_player():
+    """Demande les informations des joueurs.
+    Créé l'instance du joueur et la sauvegarde"""
     nom, prenom, date, classement, id = inputs.player_input()
     joueur = model.Player(nom, prenom, date, classement, id)
     model.Acteurs.joueurs.append(joueur)
