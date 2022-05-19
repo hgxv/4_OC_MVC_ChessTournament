@@ -8,6 +8,12 @@ cd chemin\du\projet
 
 py -m venv env
 
+# Lancement de l'environnement virtuel
+
+env\scripts\activate (Windows)
+
+source env/bin/activate
+
 # Installation des requirements
 
 py -m pip install requirements.txt
