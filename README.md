@@ -12,7 +12,7 @@ py -m venv env
 
 env\scripts\activate (Windows)
 
-source env/bin/activate
+source env/bin/activate (Linux)
 
 # Installation des requirements
 
