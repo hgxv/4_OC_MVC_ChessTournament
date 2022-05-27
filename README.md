@@ -1,6 +1,6 @@
 # Projet_4_OC
 
-git pull https://github.com/hgxv/Projet_4_OC
+git clone https://github.com/hgxv/Projet_4_OC
 
 cd chemin\du\projet
 
@@ -16,7 +16,7 @@ source env/bin/activate (Linux)
 
 # Installation des requirements
 
-py -m pip install requirements.txt
+py -m pip install -r requirements.txt
 
 # Lancement du projet
 
