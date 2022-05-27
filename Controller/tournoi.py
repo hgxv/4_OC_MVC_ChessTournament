@@ -1,5 +1,6 @@
 from Model import model
 from Controller import chargement
+from Controller import pairing
 from View import inputs
 import time
 
@@ -100,7 +101,7 @@ def run_tour(tour, already_played, score_table):
     nombre_matchs = int(len(tour.players) / 2)
 
     if tour.nom == "Round 1":
-        first_round(tour, already_played, nombre_matchs)
+        pairing.first_round(tour, already_played, nombre_matchs)
 
     else:
         # On prépare une liste prévisionnelle des matchs à corriger
@@ -108,7 +109,7 @@ def run_tour(tour, already_played, score_table):
             [joueur1, joueur2] for joueur1, joueur2 in zip(players[::2], players[1::2])
         ]
 
-        create_rounds(players, matchs, already_played, nombre_matchs)
+        pairing.create_rounds(players, matchs, already_played, nombre_matchs)
 
         for match in matchs:
             joueur1 = match[0]
@@ -120,93 +121,6 @@ def run_tour(tour, already_played, score_table):
             already_played[joueur2].append(joueur1)
     # Impression des matchs
     show_matchs(tour.liste_matchs)
-
-
-def first_round(tour, already_played, nombre_matchs):
-    """Créé le premier round"""
-    for match in range(nombre_matchs):
-        tour.liste_matchs.append(
-            model.Match(
-                tour.players[match], tour.players[nombre_matchs + match], 0, 0
-            )
-        )
-        # On ajoute les joueurs affrontés dans le dictionnaire du joueur
-        already_played[tour.players[match]].append(
-            tour.players[nombre_matchs + match]
-        )
-        already_played[tour.players[nombre_matchs + match]].append(
-            tour.players[match]
-        )
-
-
-def create_rounds(players, matchs, already_played, nombre_matchs):
-    """Créé des rounds à partir du second round.
-    Les joueurs ne s'affrontent qu'une seule fois."""
-    index = 0
-    exception_index = 1
-
-    # Tableau des 2ème joueurs, ce sont les joueurs "disponibles"
-    disponible = players[1::2]
-
-    # Dictionnaire des joueurs valides à affronter
-    can_duel = {}
-    for player in players:
-        can_duel[player] = iter(
-            [p for p in players if p not in already_played[player] and p is not player]
-        )
-
-    while index < nombre_matchs:
-        match = matchs[index]
-        joueur1 = match[0]
-        joueur2 = match[1]
-
-        is_valid = True
-
-        # Check si joueur 1 et joueur 2 se sont déjà affrontés
-        if joueur2 in already_played[joueur1]:
-            is_valid = False
-            matchs[index][1] = next(can_duel[joueur1])
-            continue
-
-        # Check si joueur 1 ou joueur 2 apparaissent dans les matchs précédents
-        for rencontre in matchs[:index]:
-            if joueur1 in rencontre or joueur1 == joueur2:
-                is_valid = False
-                # Si le joueur 1 est déjà dans les matchs, on le remplace avec le 1er joueur "disponible"
-                matchs[index][0] = disponible.pop(0)
-                # Le joueur 1 devient donc disponible
-                disponible.append(joueur1)
-                for player in players:
-                    # Avec le joueur 1 devenu disponible, on reset les iterateurs
-                    can_duel[player] = iter(
-                        [p for p in players if p not in already_played[player] and p is not player]
-                    )
-                continue
-
-            if joueur2 in rencontre:
-                is_valid = False
-                try:
-                    # Si joueur 2 est déjà dans le match on essaie le prochain "disponible"
-                    matchs[index][1] = next(can_duel[joueur1])
-                except StopIteration:
-                    # Si on atteint le dernier, on revient au match précédent
-                    index -= exception_index
-                    try:
-                        # Une fois revenu en arrière on essaie de passer au prochain "disponible"
-                        matchs[index][1] = next(can_duel[matchs[index][0]])
-                        for player in (joueur1, joueur2, matchs[index][1], matchs[index][1]):
-                            # On reset les iterateurs pour avancer dans les futurs rounds
-                            can_duel[player] = iter(
-                                [p for p in disponible if p not in already_played[joueur1] and p is not joueur1]
-                            )
-                    except StopIteration:
-                        # On revient encore plus loin dans les rounds
-                        exception_index += 1
-
-                continue
-
-        if is_valid is True:
-            index += 1
 
 
 def end_tour(tour, score_table):

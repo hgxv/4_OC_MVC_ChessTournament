@@ -18,7 +18,7 @@ def show_players(what, ordre):
     match ordre:
 
         case "1":
-            joueurs.sort(key=lambda Player: Player.__str__())
+            joueurs.sort(key=lambda Player: Player.__str__().lower())
             print("Ordre alphabétique :\n")
 
         case "2":
