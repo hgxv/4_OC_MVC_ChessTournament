@@ -78,7 +78,12 @@ def last_tournois():
     match reponse:
 
         case "1" | "2" | "3" | "4" | "5":
-            return tournois[-int(reponse)]
+            try:
+                return tournois[-int(reponse)]
+
+            except IndexError:
+                print("Ce tournoi n'existe pas chef")
+                last_tournois()
 
         # Propose à l'utilisateur de chercher un autre tournoi
         case "6":
@@ -87,7 +92,7 @@ def last_tournois():
 
         case _:
             print("\nCommande non reconnue\n")
-            last_tournois(tournois)
+            last_tournois()
 
 
 def set_score(match, joueur1, joueur2):

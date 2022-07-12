@@ -91,10 +91,10 @@ def reprendre_tournoi():
 
 def run_tour(tour, already_played, score_table):
     """Fonction de début de tour, lance les matchs"""
-    
+
     print()
     for player, score in score_table:
-            print(pairing.affiche(player) + " : " + str(score))
+        print(pairing.affiche(player) + " : " + str(score))
     print("\n" + tour.nom + " :\n")
     #   Assignation de l'heure de début
     if hasattr(tour, "heure_debut") is False:
@@ -108,9 +108,6 @@ def run_tour(tour, already_played, score_table):
         pairing.first_round(tour, already_played, nombre_matchs)
 
     else:
-        # On prépare une liste prévisionnelle des matchs à corriger
-        #matchs = [[joueur1, joueur2] for joueur1, joueur2 in zip(players[::2], players[1::2])] 
-
         matchs = pairing.create_rounds(players, already_played, nombre_matchs)
 
         for match in matchs:
