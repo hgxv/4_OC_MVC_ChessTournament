@@ -60,7 +60,7 @@ def create_rounds(players, already_played, nombre_matchs):
             # print("\nexcept\n")
             index = get_next(matchs, index, can_duel, already_played, players)
 
-        show_matchs()
+        # show_matchs()
         # print()
         # print(index)
         # print()
