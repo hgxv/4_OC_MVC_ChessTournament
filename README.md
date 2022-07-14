@@ -23,3 +23,9 @@ py -m pip install -r requirements.txt
 py main.py
 
 # Naviguez selon les menus à l'écran !
+
+
+# Pour générer un nouveau rapport Flake
+Dans le répertoire principal: 
+
+flake8 --format=html --htmldir=flake-report
